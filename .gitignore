@@ -71,3 +71,7 @@ htmlcov/
 
 # uvicorn
 .uvicorn/
+
+# Runtime logs
+*.log
+*.err.log
