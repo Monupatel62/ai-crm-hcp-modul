@@ -8,7 +8,7 @@
 
 Split-screen layout:
 - **Left** — Interaction Details form (read-only; filled entirely by AI)
-- **Right** — AI Assistant chat panel (powered by Groq + LangGraph)
+- **Right** — AI Assistant chat panel (powered by Google Gemini + LangGraph)
 
 ---
 
@@ -26,7 +26,7 @@ React + Redux (Frontend)
 FastAPI (Backend)  /api/chat
        │
        ▼
-LangGraph Agent  ──► Groq LLM (gemma2-9b-it)
+LangGraph Agent  ──► Google Gemini (`gemini-2.0-flash`)
   │
   ├── [Tool 1] extract_entities   ← NLP entity extraction via LLM
   ├── [Tool 2] summarize          ← Generates interaction notes
@@ -51,7 +51,7 @@ SQLite / Postgres DB (SQLAlchemy)
 | Frontend  | React 18, Redux Toolkit, Vite       |
 | Backend   | Python 3.11+, FastAPI, Uvicorn      |
 | AI Agent  | LangGraph 0.2, LangChain Core       |
-| LLM       | Groq — `gemma2-9b-it` (primary)     |
+| LLM       | Google Gemini — `gemini-2.0-flash` |
 | Database  | SQLite (dev) / PostgreSQL (prod)    |
 | Font      | Google Inter                        |
 
@@ -62,7 +62,7 @@ SQLite / Postgres DB (SQLAlchemy)
 ### Prerequisites
 - Python 3.11+
 - Node.js 18+
-- Free Groq API key: https://console.groq.com/
+- Free Gemini API key: https://aistudio.google.com/app/apikeys
 
 ---
 
@@ -89,7 +89,7 @@ pip install -r requirements.txt
 
 # Create .env file
 cp .env.example .env
-# → Edit .env and add your GROQ_API_KEY
+# → Edit .env and add your GEMINI_API_KEY
 
 # Start the server
 uvicorn app.main:app --reload --port 8000
@@ -123,7 +123,7 @@ Frontend runs at: http://localhost:5173
 ## 🤖 LangGraph Tools — Details
 
 ### Tool 1: `extract_entities`
-Calls the Groq LLM (`gemma2-9b-it`) with a structured system prompt.
+Calls the Google Gemini model (`gemini-2.0-flash`) with a structured system prompt.
 Extracts: `hcp_name`, `interaction_type`, `date`, `time`, `sentiment`,
 `topics_discussed`, `materials_shared`, `samples_distributed`, `outcomes`,
 `follow_up_actions`, `attendees`.
@@ -241,7 +241,7 @@ ai-crm-hcp-module/
 
 - ✅ Form is **read-only** — filled ONLY by AI assistant
 - ✅ LangGraph agent with **5+ tools** all active
-- ✅ Groq LLM (`gemma2-9b-it`) called for entity extraction
+- ✅ Google Gemini (`gemini-2.0-flash`) called for entity extraction
 - ✅ Edit interaction correctly **preserves unchanged fields**
 - ✅ Redux state management for the form draft
 - ✅ FastAPI backend with proper CORS
@@ -254,6 +254,5 @@ ai-crm-hcp-module/
 
 | Variable        | Required | Description                        |
 |-----------------|----------|------------------------------------|
-| `GROQ_API_KEY`  | Yes      | Get free at console.groq.com       |
-| `GROQ_MODEL`    | No       | Default: `gemma2-9b-it`            |
-| `DATABASE_URL`  | No       | Default: `sqlite:///./crm.db`      |
+| `GEMINI_API_KEY` | Yes     | Get free at ai.google.dev / AI Studio |
+| `DATABASE_URL`   | No      | Default: `sqlite:///./crm.db`         |
