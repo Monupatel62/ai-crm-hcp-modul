@@ -28,53 +28,63 @@ const demoPrompts = [
 ];
 
 export const fetchInteractions = createAsyncThunk("crm/fetchInteractions", async () => {
-  const res = await fetch(`${API_BASE}/api/interactions`);
-  if (!res.ok) throw new Error("Unable to fetch interactions");
-  return res.json();
+  const response = await fetch(`${API_BASE}/api/interactions`);
+  if (!response.ok) throw new Error("Unable to fetch interactions");
+  return response.json();
 });
 
 export const fetchHcps = createAsyncThunk("crm/fetchHcps", async () => {
-  const res = await fetch(`${API_BASE}/api/hcps`);
-  if (!res.ok) throw new Error("Unable to fetch HCPs");
-  return res.json();
+  const response = await fetch(`${API_BASE}/api/hcps`);
+  if (!response.ok) throw new Error("Unable to fetch HCPs");
+  return response.json();
 });
 
-export const updateHcpProfile = createAsyncThunk("crm/updateHcpProfile", async ({ hcpId, payload }) => {
-  const res = await fetch(`${API_BASE}/api/hcps/${hcpId}`, {
-    method: "PUT", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) throw new Error("Unable to update HCP profile");
-  return res.json();
-});
+export const updateHcpProfile = createAsyncThunk(
+  "crm/updateHcpProfile",
+  async ({ hcpId, payload }) => {
+    const response = await fetch(`${API_BASE}/api/hcps/${hcpId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) throw new Error("Unable to update HCP profile");
+    return response.json();
+  },
+);
 
 export const saveInteraction = createAsyncThunk("crm/saveInteraction", async (draft) => {
-  const res = await fetch(`${API_BASE}/api/interactions`, {
-    method: "POST", headers: { "Content-Type": "application/json" },
+  const response = await fetch(`${API_BASE}/api/interactions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(draft),
   });
-  if (!res.ok) throw new Error("Unable to save interaction");
-  return res.json();
+  if (!response.ok) throw new Error("Unable to save interaction");
+  return response.json();
 });
 
-export const updateInteraction = createAsyncThunk("crm/updateInteraction", async (_, { getState }) => {
-  const { crm } = getState();
-  const res = await fetch(`${API_BASE}/api/interactions/${crm.selectedInteractionId}`, {
-    method: "PUT", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(crm.draft),
-  });
-  if (!res.ok) throw new Error("Unable to update interaction");
-  return res.json();
-});
+export const updateInteraction = createAsyncThunk(
+  "crm/updateInteraction",
+  async (_, { getState }) => {
+    const { crm } = getState();
+    const response = await fetch(`${API_BASE}/api/interactions/${crm.selectedInteractionId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(crm.draft),
+    });
+    if (!response.ok) throw new Error("Unable to update interaction");
+    return response.json();
+  },
+);
 
 export const askAssistant = createAsyncThunk("crm/askAssistant", async (_, { getState }) => {
   const { crm } = getState();
-  const res = await fetch(`${API_BASE}/api/chat`, {
-    method: "POST", headers: { "Content-Type": "application/json" },
+  const response = await fetch(`${API_BASE}/api/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message: crm.chatInput, draft: crm.draft }),
   });
-  if (!res.ok) throw new Error("Assistant request failed – is the backend running?");
-  return res.json();
+  if (!response.ok) throw new Error("Assistant request failed - is the backend running?");
+  return response.json();
 });
 
 const crmSlice = createSlice({
@@ -94,88 +104,148 @@ const crmSlice = createSlice({
     successMessage: "",
   },
   reducers: {
-    setChatInput(state, action) { state.chatInput = action.payload; },
-    useDemoPrompt(state, action) { state.chatInput = action.payload; },
+    setChatInput(state, action) {
+      state.chatInput = action.payload;
+    },
+    useDemoPrompt(state, action) {
+      state.chatInput = action.payload;
+    },
     updateDraftField(state, action) {
       const { field, value } = action.payload;
       state.draft[field] = value;
     },
     applySuggestion(state, action) {
-      const cur = state.draft.follow_up_actions || "";
-      state.draft.follow_up_actions = [cur, action.payload].filter(Boolean).join("\n");
+      const current = state.draft.follow_up_actions || "";
+      state.draft.follow_up_actions = [current, action.payload].filter(Boolean).join("\n");
     },
     loadInteraction(state, action) {
       state.selectedInteractionId = action.payload.id;
       state.draft = { ...createInitialDraft(), ...action.payload };
-      state.chatInput = ""; state.chatHistory = [];
-      state.assistantReply = ""; state.toolTrace = [];
+      state.chatInput = "";
+      state.chatHistory = [];
+      state.assistantReply = "";
+      state.toolTrace = [];
     },
     resetEditor(state) {
       state.selectedInteractionId = null;
       state.draft = createInitialDraft();
-      state.chatInput = ""; state.chatHistory = [];
-      state.assistantReply = ""; state.toolTrace = [];
-      state.error = ""; state.successMessage = "";
+      state.chatInput = "";
+      state.chatHistory = [];
+      state.assistantReply = "";
+      state.toolTrace = [];
+      state.error = "";
+      state.successMessage = "";
     },
-    clearBanner(state) { state.error = ""; state.successMessage = ""; },
+    clearBanner(state) {
+      state.error = "";
+      state.successMessage = "";
+    },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchInteractions.fulfilled, (s, a) => { s.interactions = a.payload; })
-      .addCase(fetchHcps.fulfilled, (s, a) => { s.hcps = a.payload; })
-      // hcp profile
-      .addCase(updateHcpProfile.pending, (s) => { s.status = "saving"; s.error = ""; })
-      .addCase(updateHcpProfile.fulfilled, (s, a) => {
-        s.status = "idle";
-        s.hcps = s.hcps.map((h) => (h.id === a.payload.id ? a.payload : h));
-        s.successMessage = "✅ HCP profile updated.";
+      .addCase(fetchInteractions.fulfilled, (state, action) => {
+        state.interactions = action.payload;
       })
-      .addCase(updateHcpProfile.rejected, (s, a) => { s.status = "error"; s.error = a.error.message || "HCP update failed"; })
-      // save
-      .addCase(saveInteraction.pending, (s) => { s.status = "saving"; s.error = ""; s.successMessage = ""; })
-      .addCase(saveInteraction.fulfilled, (s, a) => {
-        s.status = "idle"; s.selectedInteractionId = a.payload.id;
-        s.interactions.unshift(a.payload);
-        s.draft = createInitialDraft();
-        s.chatInput = ""; s.chatHistory = [];
-        s.assistantReply = ""; s.toolTrace = [];
-        s.successMessage = "✅ Interaction saved to database!";
+      .addCase(fetchHcps.fulfilled, (state, action) => {
+        state.hcps = action.payload;
       })
-      .addCase(saveInteraction.rejected, (s, a) => { s.status = "error"; s.error = a.error.message || "Save failed"; })
-      // update
-      .addCase(updateInteraction.pending, (s) => { s.status = "saving"; s.error = ""; s.successMessage = ""; })
-      .addCase(updateInteraction.fulfilled, (s, a) => {
-        s.status = "idle";
-        s.interactions = s.interactions.map((i) => (i.id === a.payload.id ? a.payload : i));
-        s.draft = createInitialDraft();
-        s.chatInput = ""; s.chatHistory = [];
-        s.assistantReply = ""; s.toolTrace = [];
-        s.selectedInteractionId = null;
-        s.successMessage = "✅ Interaction updated!";
+      .addCase(updateHcpProfile.pending, (state) => {
+        state.status = "saving";
+        state.error = "";
       })
-      .addCase(updateInteraction.rejected, (s, a) => { s.status = "error"; s.error = a.error.message || "Update failed"; })
-      // chat
-      .addCase(askAssistant.pending, (s) => {
-        s.status = "thinking"; s.error = ""; s.successMessage = "";
-        if (s.chatInput.trim()) s.chatHistory.push({ role: "user", text: s.chatInput.trim() });
+      .addCase(updateHcpProfile.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.hcps = state.hcps.map((hcp) => (hcp.id === action.payload.id ? action.payload : hcp));
+        state.successMessage = "HCP profile updated.";
       })
-      .addCase(askAssistant.fulfilled, (s, a) => {
-        s.status = "idle";
-        const { reply, draft_updates, tool_trace } = a.payload;
-        s.assistantReply = reply; s.toolTrace = tool_trace || [];
-        if (draft_updates && Object.keys(draft_updates).length) {
-          s.draft = { ...s.draft, ...draft_updates };
+      .addCase(updateHcpProfile.rejected, (state, action) => {
+        state.status = "error";
+        state.error = action.error.message || "HCP update failed";
+      })
+      .addCase(saveInteraction.pending, (state) => {
+        state.status = "saving";
+        state.error = "";
+        state.successMessage = "";
+      })
+      .addCase(saveInteraction.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.selectedInteractionId = action.payload.id;
+        state.interactions.unshift(action.payload);
+        state.draft = createInitialDraft();
+        state.chatInput = "";
+        state.chatHistory = [];
+        state.assistantReply = "";
+        state.toolTrace = [];
+        state.successMessage = "Interaction saved to database.";
+      })
+      .addCase(saveInteraction.rejected, (state, action) => {
+        state.status = "error";
+        state.error = action.error.message || "Save failed";
+      })
+      .addCase(updateInteraction.pending, (state) => {
+        state.status = "saving";
+        state.error = "";
+        state.successMessage = "";
+      })
+      .addCase(updateInteraction.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.interactions = state.interactions.map((item) =>
+          item.id === action.payload.id ? action.payload : item,
+        );
+        state.draft = createInitialDraft();
+        state.chatInput = "";
+        state.chatHistory = [];
+        state.assistantReply = "";
+        state.toolTrace = [];
+        state.selectedInteractionId = null;
+        state.successMessage = "Interaction updated.";
+      })
+      .addCase(updateInteraction.rejected, (state, action) => {
+        state.status = "error";
+        state.error = action.error.message || "Update failed";
+      })
+      .addCase(askAssistant.pending, (state) => {
+        state.status = "thinking";
+        state.error = "";
+        state.successMessage = "";
+        if (state.chatInput.trim()) {
+          state.chatHistory.push({ role: "user", text: state.chatInput.trim() });
         }
-        s.chatHistory.push({ role: "assistant", text: reply, tools: tool_trace || [] });
-        s.chatInput = "";
       })
-      .addCase(askAssistant.rejected, (s, a) => {
-        s.status = "error"; s.error = a.error.message || "Assistant failed";
-        s.chatHistory.push({ role: "assistant", text: "⚠️ " + (a.error.message || "Backend error"), tools: [] });
-        s.chatInput = "";
+      .addCase(askAssistant.fulfilled, (state, action) => {
+        state.status = "idle";
+        const { reply, draft_updates, tool_trace } = action.payload;
+        state.assistantReply = reply;
+        state.toolTrace = tool_trace || [];
+        if (draft_updates && Object.keys(draft_updates).length) {
+          state.draft = { ...state.draft, ...draft_updates };
+        }
+        state.chatHistory.push({ role: "assistant", text: reply, tools: tool_trace || [] });
+        state.chatInput = "";
+      })
+      .addCase(askAssistant.rejected, (state, action) => {
+        state.status = "error";
+        state.error = action.error.message || "Assistant failed";
+        state.chatHistory.push({
+          role: "assistant",
+          text: `Warning: ${action.error.message || "Backend error"}`,
+          tools: [],
+        });
+        state.chatInput = "";
       });
   },
 });
 
-export const { setChatInput, useDemoPrompt, applySuggestion, loadInteraction, resetEditor, clearBanner, updateDraftField } = crmSlice.actions;
-export const store = configureStore({ reducer: { crm: crmSlice.reducer } });
+export const {
+  setChatInput,
+  useDemoPrompt,
+  applySuggestion,
+  loadInteraction,
+  resetEditor,
+  clearBanner,
+  updateDraftField,
+} = crmSlice.actions;
+
+export const store = configureStore({
+  reducer: { crm: crmSlice.reducer },
+});

@@ -66,6 +66,41 @@ textarea { font-family: var(--font); }
   padding: 10px 0;
 }
 
+.entry-modes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.entry-mode-card {
+  background: linear-gradient(135deg, #ffffff, #f8fbff);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.entry-mode-kicker {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.entry-mode-card h2 {
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.entry-mode-card p {
+  color: var(--text-mid);
+  font-size: 13px;
+}
+
 /* ── Banner ──────────────────────────────────────────────── */
 .banner {
   display: flex; align-items: center; justify-content: space-between;
@@ -93,6 +128,13 @@ textarea { font-family: var(--font); }
   border-bottom: 1px solid var(--border);
   font-size: 14px; font-weight: 600; color: var(--text-dark);
   background: #fafbfc;
+}
+
+.card-subtitle {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-light);
+  margin-top: 2px;
 }
 
 /* ── Main grid ───────────────────────────────────────────── */
@@ -213,7 +255,7 @@ select.editable-input {
 .sentiment-row { display: flex; gap: 16px; margin-top: 2px; }
 .senti-option {
   display: flex; align-items: center; gap: 7px;
-  font-size: 13px; color: var(--text-mid); cursor: default;
+  font-size: 13px; color: var(--text-mid); cursor: pointer;
   padding: 6px 12px; border-radius: 20px;
   border: 1px solid transparent; transition: all .15s;
 }
@@ -454,3 +496,9 @@ select.editable-input {
 .rec-cell.full { grid-column: 1 / -1; border-right: none; }
 .rec-label { font-size: 11px; color: var(--text-light); font-weight: 500; display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .4px; }
 .rec-val { font-size: 13.5px; color: var(--text-dark); font-weight: 500; }
+
+@media (max-width: 900px) {
+  .entry-modes {
+    grid-template-columns: 1fr;
+  }
+}
