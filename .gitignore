@@ -1,0 +1,73 @@
+# Environment Variables
+.env
+.env.local
+.env.*.local
+.env.production
+.env.production.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+ENV/
+env/
+.venv
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.pnp
+.pnp.js
+
+# Build files
+dist/
+build/
+.next/
+out/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.pydevproject
+.settings/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# uvicorn
+.uvicorn/
